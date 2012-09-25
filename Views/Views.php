@@ -46,11 +46,26 @@ class Index
    }
 }
 
-class Post
+class Game
 {
-   function post()
+   public function get($method)
    {
-      echo "You're positng to /Post";
+      $this->{$method}();
+   }
+
+   function home()
+   {
+      echo "Home";
+   }
+
+   function away()
+   {
+      echo "Away";
+   }
+
+   function here()
+   {
+      echo "Here";
    }
 }
 

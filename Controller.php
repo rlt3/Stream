@@ -20,7 +20,7 @@ class Controller
    function __destruct()
    {
       $method = new ReflectionMethod($this->_view, $this->_method);
-      if($this->_params == null)
+      if($this->_params == null || empty($this->_params[0]))
          $method->invoke($this->_view);
       else
          $method->invokeArgs($this->_view, $this->_params);
@@ -53,13 +53,12 @@ class Controller
       $get = array_slice($this->_url, 2);
       $i=0;
       foreach ($args as $arg)
-         $params[] = $get[$i++];
-
-         //echo (!$arg->isOptional) ? "true" : "false";
-         //echo (empty($get[$i++])) ? "true" : "false";
-         //if(!$arg->isOptional && empty($get[$i++]))
-         //   header('Location: /404');
-
+      {
+         $num = $i++;
+         if(!$arg->isOptional() && empty($get[$num]))
+            header('Location: /404');
+         $params[] = $get[$num];
+      }
       return $params;
    }
 
