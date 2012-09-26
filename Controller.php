@@ -16,17 +16,26 @@ class Controller
    {
       $this->_requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
       $this->_requestURL    = $_SERVER['REQUEST_URI'];
+
+      $this->redirectSlashes();
       $this->_url           = $this->explodeURL();
       $this->_view          = $this->handleView();
       $this->_method        = $this->handleMethod();
       $this->_methodArgs    = $this->handleArguments();
       $this->_urlParams     = $this->handleGetParameters();
       $this->_params        = $this->handleParameters();
+
    }
 
    function __destruct()
    {
       $this->displayView();
+   }
+
+   private function redirectSlashes()
+   {
+      if(substr_compare($this->_requestURL, '/', strlen($this->_requestURL)-1) == 0 && $this->_requestURL != '/')
+         header('Location: '.substr($this->_requestURL,0,-1));
    }
 
    private function explodeURL()
@@ -37,17 +46,17 @@ class Controller
    private function handleView()
    {
       if($this->_requestURL === '/')
-         $this->_url[0] = 'index';
+         $this->_url[1] = 'index';
 
-      if($this->viewExists($this->_url[0]))
-            return new $this->_url[0];
+      if($this->viewExists($this->_url[1]))
+         return new $this->_url[1];
       header('Location: /404');
    }
 
    private function handleMethod()
    {
       if($this->methodExists($this->_view, $this->_requestMethod))
-         return $method = new ReflectionMethod($this->_url[0], $this->_requestMethod);
+         return $method = new ReflectionMethod($this->_url[1], $this->_requestMethod);
       header('Location: /404');
    }
 
