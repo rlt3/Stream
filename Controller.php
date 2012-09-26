@@ -3,74 +3,93 @@ include('Views/Views.php');
 
 class Controller
 {
-   protected $_method;
-   protected $_request;
-   private   $_url;     // the url split by / into an array
-   protected $_params;
-   protected $_view;
+   private $_requestMethod;
+   private $_requestURL;
+   private $_url;
+   private $_view;
+   private $_method;
+   private $_methodArgs;
+   private $_urlParams;
+   private $_params;
 
    function __construct()
    {
-      $this->_method  = strtolower($_SERVER['REQUEST_METHOD']);
-      $this->_request = $_SERVER['REQUEST_URI'];
-      $this->_view    = $this->handleRequest();
-      $this->_params  = $this->handleParameters();
+      $this->_requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
+      $this->_requestURL    = $_SERVER['REQUEST_URI'];
+      $this->_url           = $this->explodeURL();
+      $this->_view          = $this->handleView();
+      $this->_method        = $this->handleMethod();
+      $this->_methodArgs    = $this->handleArguments();
+      $this->_urlParams     = $this->handleGetParameters();
+      $this->_params        = $this->handleParameters();
    }
 
    function __destruct()
    {
-      $method = new ReflectionMethod($this->_view, $this->_method);
-      if($this->_params == null || empty($this->_params[0]))
-         $method->invoke($this->_view);
-      else
-         $method->invokeArgs($this->_view, $this->_params);
+      $this->displayView();
    }
 
-   private function handleRequest()
+   private function explodeURL()
    {
-      if($this->_request === '/')
-         return $view = new Index();
+      return explode('/', $this->_requestURL);
+   }
 
-      if($this->_request === '/404')
-         return $view = new Error(404);
+   private function handleView()
+   {
+      if($this->_requestURL === '/')
+         $this->_url[0] = 'index';
 
-      // if the request is /page/, redirect to /page
-      if(substr_compare($this->_request, '/', strlen($this->_request)-1) == 0)
-         return header('Location: '.substr($this->_request,0,-1));
+      if($this->viewExists($this->_url[0]))
+            return new $this->_url[0];
+      header('Location: /404');
+   }
 
-      $this->_url = explode('/', $this->_request);
+   private function handleMethod()
+   {
+      if($this->methodExists($this->_view, $this->_requestMethod))
+         return $method = new ReflectionMethod($this->_url[0], $this->_requestMethod);
+      header('Location: /404');
+   }
 
-      return $view = $this->viewExists($this->_url[1]);
+   private function handleArguments()
+   {
+      return (sizeof($this->_method->getParameters())>0) ? $this->_method->getParameters() : null;
+   }
+
+   private function handleGetParameters()
+   {
+      $array = array_slice($this->_url, 2);
+      return $array;
    }
 
    private function handleParameters()
    {
-      $method = new ReflectionMethod($this->_view, $this->_method);
-      $args = $method->getParameters();
-      if(sizeof($args) == 0)
-         return null;
-
-      $get = array_slice($this->_url, 2);
       $i=0;
-      foreach ($args as $arg)
+      foreach($this->_methodArgs as $arg)
       {
-         $num = $i++;
-         if(!$arg->isOptional() && empty($get[$num]))
+         if(!$arg->isOptional() && empty($this->_urlParams[$i]))
             header('Location: /404');
-         $params[] = $get[$num];
+         $params[] = $this->_urlParams[$i++];
       }
       return $params;
    }
 
+   private function displayView()
+   {
+      if($this->_params == null || empty($this->_params[0]))
+         $this->_method->invoke($this->_view);
+      else
+         $this->_method->invokeArgs($this->_view, $this->_params);
+   }
+
    private function viewExists($view)
    {
-      if(class_exists(ucfirst($view)))
-      {
-         $obj = new $view;
-         if(method_exists($obj, $this->_method))
-            return $obj;
-      }
-      header('Location: /404');
+      return class_exists(ucfirst($view));
+   }
+
+   private function methodExists($view, $method)
+   {
+      return method_exists($view, $method); 
    }
 }
 $remote = new Controller();
