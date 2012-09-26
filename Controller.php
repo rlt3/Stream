@@ -12,6 +12,8 @@ class Controller
    private $_urlParams;
    private $_params;
 
+   private $_error;
+
    function __construct()
    {
       $this->_requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
@@ -25,6 +27,7 @@ class Controller
       $this->_urlParams     = $this->handleGetParameters();
       $this->_params        = $this->handleParameters();
 
+      $this->handleErrors();
    }
 
    function __destruct()
@@ -49,15 +52,15 @@ class Controller
          $this->_url[1] = 'index';
 
       if($this->viewExists($this->_url[1]))
-         return new $this->_url[1];
-      header('Location: /404');
+         return new ReflectionClass($this->_url[1]);
+      $this->_error[] = 404;
    }
 
    private function handleMethod()
    {
       if($this->methodExists($this->_view, $this->_requestMethod))
-         return $method = new ReflectionMethod($this->_url[1], $this->_requestMethod);
-      header('Location: /404');
+         return new ReflectionMethod($this->_url[1], $this->_requestMethod);
+      $this->_error[] = 404;
    }
 
    private function handleArguments()
@@ -78,19 +81,33 @@ class Controller
          $params[] = $this->handleArg($arg, $this->_urlParams[$i]);
       return $params;
    }
+
    private function handleArg($arg, $param)
    {
       if(!$arg->isOptional() && empty($param))
-         header('Location: /404');
+         $this->_error[] = 404;
       return $param;
    }
 
    private function displayView()
    {
+      if(!empty($this->_error))
+         $this->_view = $this->_view->newInstanceArgs($this->_error);
+      else
+         $this->_view = $this->_view->newInstance();
       if($this->_params == null || empty($this->_params[0]))
          $this->_method->invoke($this->_view);
       else
          $this->_method->invokeArgs($this->_view, $this->_params);
+   }
+
+   private function handleErrors()
+   {
+      if(empty($this->_error)) return;
+
+      $this->_params = null;
+      $this->_view   = new ReflectionClass('Error');
+      $this->_method = new ReflectionMethod('Error', 'get');
    }
 
    private function viewExists($view)
@@ -100,7 +117,7 @@ class Controller
 
    private function methodExists($view, $method)
    {
-      return method_exists($view, $method); 
+      return $this->_view->hasMethod($method);
    }
 }
 $remote = new Controller();
