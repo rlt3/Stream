@@ -75,12 +75,14 @@ class Controller
    {
       $i=0;
       foreach($this->_methodArgs as $arg)
-      {
-         if(!$arg->isOptional() && empty($this->_urlParams[$i]))
-            header('Location: /404');
-         $params[] = $this->_urlParams[$i++];
-      }
+         $params[] = $this->handleArg($arg, $this->_urlParams[$i]);
       return $params;
+   }
+   private function handleArg($arg, $param)
+   {
+      if(!$arg->isOptional() && empty($param))
+         header('Location: /404');
+      return $param;
    }
 
    private function displayView()
