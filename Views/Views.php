@@ -71,9 +71,9 @@ class Game
 
 class Login
 {
-   function get($error)
+   function get($error=null)
    {
-      if(isset($error)) echo $error, "<br>";
+      //if(isset($error)) echo $error, "<br>";
       echo "login page";
       echo "<form action=\"/login\" method=\"POST\">\n";
       echo "<input type=\"submit\" value=\"post\" />\n";
