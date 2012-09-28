@@ -1,0 +1,9 @@
+<html>
+   <head>
+      <title></title>
+   </head>
+   <body>
+      <h1>Title</h1>
+      <h2>Whatever</h2>
+   </body>
+</html>

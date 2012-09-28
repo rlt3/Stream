@@ -1,3 +1,3 @@
 RewriteEngine On
 RewriteCond %{REQUEST_URI} !\.(css|gif|ico|jpg|js|png|swf|txt)$
-RewriteRule .* Controller/Controller.php
+RewriteRule .* app/Controller/Controller.php

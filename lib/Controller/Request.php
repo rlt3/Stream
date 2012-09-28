@@ -5,6 +5,7 @@ class Request
    public $method;
    public $view;
    public $get = array();
+   public $httpGet = false;
 
    protected $_splitPath;
 
@@ -14,6 +15,7 @@ class Request
       $this->method = strtolower($_SERVER['REQUEST_METHOD']);
       $this->view   = $this->_getView();
       $this->get    = $this->_getParameters();
+      //$this->httpGet = $this->_getHttp();
    }
 
    protected function _getView()

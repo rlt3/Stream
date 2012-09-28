@@ -9,12 +9,6 @@ class Controller
 
    protected $_error;
 
-   /**
-    * Make a check to see if get[0] equals something like
-    * ?q=blah so that get parameters can be passed without
-    * passing it is one of my get parameters
-    */
-
    public function __construct()
    {
       $this->request = new Request();
@@ -27,6 +21,7 @@ class Controller
 
    public function __destruct()
    {
+      //$this->_debug();
       $this->_displayView();
    }
 
@@ -38,10 +33,22 @@ class Controller
          $this->view->invoke($this->request->get);
    }
 
-   private function _redirectSlashes()
+   protected function _redirectSlashes()
    {
       $url = $this->request->path;
       if(substr_compare($url, '/', strlen($url)-1) == 0 && $url != '/')
          header('Location: '.substr($url,0,-1));
+   }
+
+   private function _debug()
+   {
+      echo '<pre>';
+      echo 'Request Path: ', $this->request->path, "\n";
+      echo 'Response View: ', $this->request->view, "\n";
+      echo 'View is Bad: ', ($this->view->isBadView()) ? 'true' : 'false', "\n";
+      echo 'View has args: ', ($this->view->hasArguments()) ? 'true' : 'false', "\n";
+      echo 'Get Parameters: ', ($this->request->get==null) ? 'null' : print_r($this->request->get), "\n";
+      echo 'Missing Required Args: ', ($this->view->missingRequiredArguments($this->request->get)) ? 'true' : 'false', "\n";
+      echo '</pre>';
    }
 }
