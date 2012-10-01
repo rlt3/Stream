@@ -7,7 +7,7 @@ class View
    protected $_rClass   = false;
    protected $_rMethod  = false;
    protected $_args     = false;
-   
+
    public function __construct($view, $method)
    {
       $this->view   = $view;
@@ -15,6 +15,24 @@ class View
       $this->_rClass  = $this->_handleView();
       $this->_rMethod = $this->_handleMethod();
       $this->_args    = $this->_getArguments();
+   }
+
+   public function responseView()
+   {
+      return $this->_rClass;
+   }
+
+   public function responseMethod()
+   {
+      return $this->_rMethod;
+   }
+
+   public function getErrors($get)
+   {
+      $errors['isMissing']  =  ($this->_rClass==false) ? true : false;
+      $errors['noMethod']   =   ($this->_rMethod==false) ? true : false;
+      $errors['missedArgs'] = $this->missingRequiredArguments($get);
+      return $errors;
    }
 
    public function isBadView()
@@ -40,15 +58,6 @@ class View
          if(!$arg->isOptional() && empty($get[$i++]))
             return true;
       return false;
-   }
-
-   public function invoke($get)
-   {
-      $view = $this->_rClass->newInstance();
-      if($get==null)
-         $this->_rMethod->invoke($view);
-      else
-         $this->_rMethod->invokeArgs($view, $get);
    }
 
    protected function _getArguments()

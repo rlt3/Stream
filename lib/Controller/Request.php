@@ -15,6 +15,8 @@ class Request
       $this->method = strtolower($_SERVER['REQUEST_METHOD']);
       $this->view   = $this->_getView();
       $this->get    = $this->_getParameters();
+
+      $this->_redirectSlashes();
       //$this->httpGet = $this->_getHttp();
    }
 
@@ -30,5 +32,12 @@ class Request
       $params = array_slice($this->_splitPath, 2);
       if(empty($params)) return null;
       return $params;
+   }
+
+   protected function _redirectSlashes()
+   {
+      $url = $this->path;
+      if(substr_compare($url, '/', strlen($url)-1) == 0 && $url != '/')
+         header('Location: '.substr($url,0,-1));
    }
 }

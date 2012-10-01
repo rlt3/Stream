@@ -1,43 +1,22 @@
 <?php
 require_once('Request.php');
+require_once('Response.php');
 require_once('View.php');
 
 class Controller
 {
    public $request;
-   public $view;
-
-   protected $_error;
+   public $response;
 
    public function __construct()
    {
       $this->request = new Request();
-      $this->view    = new View($this->request->view, $this->request->method); 
-      $this->_redirectSlashes();
-
-      $this->_error['badView'] =  $this->view->isBadView();
-      $this->_error['missedArgs'] =  $this->view->missingRequiredArguments($this->request->get);
+      $this->response = new Response($this->request);
    }
 
    public function __destruct()
    {
-      //$this->_debug();
-      $this->_displayView();
-   }
-
-   protected function _displayView()
-   {
-      if($this->_error['badView'] || $this->_error['missedArgs'])
-         echo '404';
-      else
-         $this->view->invoke($this->request->get);
-   }
-
-   protected function _redirectSlashes()
-   {
-      $url = $this->request->path;
-      if(substr_compare($url, '/', strlen($url)-1) == 0 && $url != '/')
-         header('Location: '.substr($url,0,-1));
+      $this->response->invoke($this->request->get);
    }
 
    private function _debug()
