@@ -9,9 +9,9 @@ It serves mainly as a side project for myself because I always wanted to make a 
 
 ### What's cool about Stream
 
-It's named for what I would like to call the 'Stream Model'. The model is simple in theory: a user makes a request. This request is sent 'up'. At any point the server can stop execution and send a response downstream to the user. So, if the request was bad, there would not be a lot of time spent on that request as the server can send the error downstream almost immediately.
+It's named for what I would like to call the 'Stream Model'. The model is simple in theory: a user makes a request. This request is sent 'up'. At any point, as the request moves 'up', the server can stop execution and send a response downstream to the user. So, if the request was bad, there would not be a lot of time spent on that request as the server can send the error downstream almost immediately.
 
-For requests that need to make use of a model and GET parameters, they would go all the way 'up' before coming down the Stream. So, only the things that require to most amount of work use the most amount of resources. This the theory, at least, and this is what I'm working towards.
+For requests that need to make use of a model and GET parameters, they would go all the way 'up' before coming down the Stream. So, only the things that require to most amount of work use the most amount of resources. This is the theory and this is what I'm working towards.
 
 ### URL Mapping
 
