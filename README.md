@@ -15,9 +15,9 @@ For requests that need to make use of a model and GET parameters, they would go 
 
 ### URL Mapping
 
-Stream also makes pretty urls. For a url like ``/article/1`` all a developer would need to do is ``class Article`` with a ``public function get($id)`` as a method of ``Article``.
+Stream also makes pretty urls. For a url like ``/article/1`` all a developer would need to do is make a  ``class Article`` with a ``public function get($id)`` as a method.
 
-But I didn't want to break the super globals PHP uses for GET already because of things like APIs. A lot of times you see something like this:
+But I didn't want to break the super globals PHP uses for GET already because of things like APIs. Sometimes you see something like this:
 
 ``example.com/api?method=getFruit&cost=5.99&store=Aldi``
 
@@ -29,4 +29,4 @@ The difference between the two is not a very big one, but a significant one, I w
 
 Of course, there is nothing stopping you from doing the following:
 
-``example.com/api/categoryTotal/Produce/Aldi
+``example.com/api/categoryTotal/Produce/Aldi``
