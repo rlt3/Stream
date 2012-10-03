@@ -9,35 +9,12 @@ class Response
 
    public function __construct($request)
    {
-      $this->_view = new View($request->view, $request->method);
-      $this->_handleAndSetView($request->get);
+      $this->_view = new View($request->view, $request->method, $request->get);
    }
 
-   public function invoke($parameters)
+   public function display()
    {
-      $view = $this->class->newInstance();
-      ($parameters==null) ? $this->method->invoke($view) : $this->method->invokeArgs($view, $parameters);
-   }
-
-   protected function _handleAndSetView($get)
-   {
-      $errors = $this->_view->getErrors($get);
-      switch($errors)
-      {
-         case ($errors['isMissing']): 
-            echo '404';
-            break;
-         case ($errors['noMethod']):
-            echo '405';
-            break;
-         case ($errors['missedArgs']): 
-            echo '400';
-            break;
-         default:
-            $this->class = $this->_view->responseView();
-            $this->method = $this->_view->responseMethod();
-            break;
-      }
+      $this->_view->invoke();
    }
 
    protected function _routingMode()

@@ -1,93 +1,69 @@
 <?php
+include('Error.php');
+
 class View
 {
-   public $view;
-   public $method;
+   protected $view;
+   protected $method;
+   protected $get;
+   protected $args;
 
-   protected $_rClass   = false;
-   protected $_rMethod  = false;
-   protected $_args     = false;
-
-   public function __construct($view, $method)
+   public function __construct($view, $method, $get)
    {
-      $this->view   = $view;
-      $this->method = $method;
-      $this->_rClass  = $this->_handleView();
-      $this->_rMethod = $this->_handleMethod();
-      $this->_args    = $this->_getArguments();
+      $this->handleView($view);
+      $this->handleMethod($view, $method);
+      $this->handleArguments($get);
    }
 
-   public function responseView()
+   public function invoke()
    {
-      return $this->_rClass;
+      $view = $this->view->newInstance();
+      ($this->get==null) ? $this->method->invoke($view) : $this->method->invokeArgs($view, $this->get);
    }
 
-   public function responseMethod()
+   protected function handleView($view)
    {
-      return $this->_rMethod;
+      (class_exists($view)) ? $this->view = new ReflectionClass($view) : $this->error(404);
    }
 
-   public function getErrors($get)
+   protected function handleMethod($view, $method)
    {
-      $errors['isMissing']  =  ($this->_rClass==false) ? true : false;
-      $errors['noMethod']   =   ($this->_rMethod==false) ? true : false;
-      $errors['missedArgs'] = $this->missingRequiredArguments($get);
-      return $errors;
+      ($this->methodExists($method)) ? $this->method = new ReflectionMethod($view, $method) : $this->error(405);
    }
 
-   public function isBadView()
+   protected function handleArguments($get)
    {
-      /**
-       * This doesn't check to see if a passed parameter exists as a method.
-       * E.g. /purchases/calc uses Purchases::calc(), but if there was a request
-       * for /purchases/fun, even though Purchases::fun() doesn't exist, this
-       * still says the view is good.
-       */
-      return ($this->_rClass==false || $this->_rMethod==false) ? true : false;
+      $this->args = $this->getArguments();
+      return (!$this->missingArgs($get)) ? : $this->error(400);
    }
 
-   public function hasArguments()
+   protected function methodExists($method)
    {
-      return ($this->_args!=false) ? true : false;
+      return $this->view->hasMethod($method);
    }
 
-   public function missingRequiredArguments($get)
+   protected function missingArgs($get)
    {
       $i=0;
-      foreach($this->_args as $arg)
+      foreach($this->args as $arg)
          if(!$arg->isOptional() && empty($get[$i++]))
             return true;
       return false;
    }
 
-   protected function _getArguments()
+   protected function getArguments()
    {
-      $arguments = ($this->_rMethod!=false) ? $this->_rMethod->getParameters() : null;
-      if(sizeof($arguments)>0)
-         return $arguments;
+      $arguments = $this->method->getParameters();
+      return (sizeof($arguments)>0) ? $arguments : null;
    }
 
-   protected function _handleView()
+   private final function error($error)
    {
-      if($this->_viewExists())
-         return new ReflectionClass($this->view);
-   }
-
-   protected function _handleMethod()
-   {
-      if($this->_methodExists())
-         return new ReflectionMethod($this->view, $this->method);
-   }
-
-   protected function _viewExists()
-   {
-      return class_exists($this->view);
-   }
-
-   protected function _methodExists()
-   {
-      if($this->_rClass!=false)
-         return $this->_rClass->hasMethod($this->method);
-      return false;
+      $this->view = new ReflectionClass('Error');
+      $this->method = new ReflectionMethod('Error', 'http');
+      $this->args = $this->method->getParameters;
+      $this->get[0] = $error;
+      $this->invoke();
+      exit;
    }
 }
