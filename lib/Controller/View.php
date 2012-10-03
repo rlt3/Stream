@@ -3,9 +3,6 @@ include('Error.php');
 
 class View
 {
-   protected $view;
-   protected $method;
-   protected $get;
    protected $args;
 
    public function __construct($view, $method, $get)
@@ -15,31 +12,26 @@ class View
       $this->handleArguments($get);
    }
 
-   public function invoke()
-   {
-      $view = $this->view->newInstance();
-      ($this->get==null) ? $this->method->invoke($view) : $this->method->invokeArgs($view, $this->get);
-   }
-
    protected function handleView($view)
    {
-      (class_exists($view)) ? $this->view = new ReflectionClass($view) : $this->error(404);
+      (class_exists($view)) ? Stream::$view = new ReflectionClass($view) : Stream::jump(404);
    }
 
    protected function handleMethod($view, $method)
    {
-      ($this->methodExists($method)) ? $this->method = new ReflectionMethod($view, $method) : $this->error(405);
+      ($this->methodExists($method)) ? Stream::$method = new ReflectionMethod($view, $method) : Stream::jump(405);
    }
 
    protected function handleArguments($get)
    {
+      Stream::$get = $get;      
       $this->args = $this->getArguments();
-      return (!$this->missingArgs($get)) ? : $this->error(400);
+      return (!$this->missingArgs($get)) ? : Stream::jump(400);
    }
 
    protected function methodExists($method)
    {
-      return $this->view->hasMethod($method);
+      return Stream::$view->hasMethod($method);
    }
 
    protected function missingArgs($get)
@@ -53,17 +45,7 @@ class View
 
    protected function getArguments()
    {
-      $arguments = $this->method->getParameters();
+      $arguments = Stream::$method->getParameters();
       return (sizeof($arguments)>0) ? $arguments : null;
-   }
-
-   private final function error($error)
-   {
-      $this->view = new ReflectionClass('Error');
-      $this->method = new ReflectionMethod('Error', 'http');
-      $this->args = $this->method->getParameters;
-      $this->get[0] = $error;
-      $this->invoke();
-      exit;
    }
 }

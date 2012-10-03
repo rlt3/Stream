@@ -13,9 +13,4 @@ class Controller
       $this->request = new Request();
       $this->response = new Response($this->request);
    }
-
-   public function __destruct()
-   {
-      $this->response->display();
-   }
 }
