@@ -7,13 +7,12 @@ class Stream
 {
    public static $view;
    public static $method;
-   public static $get;
+   public static $get = array();
 
    public static function downStream()
    {
       $class = self::$view->newInstance();
-      (self::$get==null) ? self::$method->invoke($class) : 
-         self::$method->invokeArgs($class, self::$get);
+      self::$method->invokeArgs($class, self::$get);
    }
 
    public static function jump($error)

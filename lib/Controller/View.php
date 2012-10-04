@@ -24,7 +24,7 @@ class View
 
    protected function handleArguments($get)
    {
-      Stream::$get = $get;      
+      if(!empty($get)) Stream::$get = $get;
       $this->args = $this->getArguments();
       return (!$this->missingArgs($get)) ? : Stream::jump(400);
    }
