@@ -13,32 +13,32 @@ class Request
 
    protected static $_splitPath;
 
-   public static function ResponseStream()
+   public function __construct()
    {
       self::$path   = $_SERVER['REQUEST_URI'];
       self::$method = strtolower($_SERVER['REQUEST_METHOD']);
-      self::$view   = self::_getview();
-      self::$get    = self::_getparameters();
-      self::_redirectSlashes();
+      self::$view   = $this->_getview();
+      self::$get    = $this->_getparameters();
+      $this->_redirectSlashes();
 
       new Response();
    }
 
-   protected static function _getView()
+   protected function _getView()
    {
-      self::$_splitPath = explode('/', self::$path);
       if(self::$path==='/') return 'Index';
+      self::$_splitPath = explode('/', self::$path);
       return ucfirst(self::$_splitPath[1]);
    }
 
-   protected static function _getParameters()
+   protected function _getParameters()
    {
       $params = array_slice(self::$_splitPath, 2);
       if(empty($params)) return null;
       return $params;
    }
 
-   protected static function _redirectSlashes()
+   protected function _redirectSlashes()
    {
       $url = self::$path;
       if(substr_compare($url, '/', strlen($url)-1) == 0 && $url != '/')
