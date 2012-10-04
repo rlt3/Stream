@@ -1,37 +1,35 @@
 <?php
-include('Error.php');
-
-class View
+class View extends Response
 {
    protected $args;
 
-   public function __construct($view, $method, $get)
+   public function __construct()
    {
-      $this->handleView($view);
-      $this->handleMethod($view, $method);
-      $this->handleArguments($get);
+      $this->handleView(Request::$view);
+      $this->handleMethod(Request::$view, Request::$method);
+      $this->handleArguments(Request::$get);
    }
 
    protected function handleView($view)
    {
-      (class_exists($view)) ? Stream::$view = new ReflectionClass($view) : Stream::jump(404);
+      (class_exists($view)) ? parent::$view = new ReflectionClass($view) : parent::jump(404);
    }
 
    protected function handleMethod($view, $method)
    {
-      ($this->methodExists($method)) ? Stream::$method = new ReflectionMethod($view, $method) : Stream::jump(405);
+      ($this->methodExists($method)) ? parent::$method = new ReflectionMethod($view, $method) : parent::jump(405);
    }
 
    protected function handleArguments($get)
    {
-      if(!empty($get)) Stream::$get = $get;
+      if(!empty($get)) parent::$get = $get;
       $this->args = $this->getArguments();
-      return (!$this->missingArgs($get)) ? : Stream::jump(400);
+      return (!$this->missingArgs($get)) ? : parent::jump(400);
    }
 
    protected function methodExists($method)
    {
-      return Stream::$view->hasMethod($method);
+      return parent::$view->hasMethod($method);
    }
 
    protected function missingArgs($get)
@@ -45,7 +43,7 @@ class View
 
    protected function getArguments()
    {
-      $arguments = Stream::$method->getParameters();
-      return (sizeof($arguments)>0) ? $arguments : null;
+      $arguments = parent::$method->getParameters();
+      return (sizeof($arguments)>0) ? $arguments : exit;
    }
 }

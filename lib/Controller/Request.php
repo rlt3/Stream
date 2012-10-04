@@ -2,37 +2,27 @@
 require_once('Request.php');
 require_once('Response.php');
 require_once('View.php');
+require_once('Error.php');
 
 class Request
 {
    public static $path;
    public static $method;
    public static $view;
-   public static $get = array();
-   public static $response;
+   public static $get;
 
    protected static $_splitPath;
 
-   public static function startResponse()
+   public static function ResponseStream()
    {
       self::$path   = $_SERVER['REQUEST_URI'];
       self::$method = strtolower($_SERVER['REQUEST_METHOD']);
       self::$view   = self::_getview();
       self::$get    = self::_getparameters();
-      self::$response = new Response(self::$view, self::$method, self::$get);
-
       self::_redirectSlashes();
+
+      new Response();
    }
-
-   //public function __construct()
-   //{
-   //   $this->path   = $_SERVER['REQUEST_URI'];
-   //   $this->method = strtolower($_SERVER['REQUEST_METHOD']);
-   //   $this->view   = $this->_getView();
-   //   $this->get    = $this->_getParameters();
-
-   //   $this->_redirectSlashes();
-   //}
 
    protected static function _getView()
    {

@@ -4,6 +4,5 @@ $path  = $_SERVER['DOCUMENT_ROOT'];
 include_once($path.'/lib/Stream.php');
 include_once($path.'/app/Views/Views.php');
 
-//$remote = new Controller();
-Request::startResponse();
+Request::ResponseStream();
 ?>

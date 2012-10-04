@@ -1,18 +1,28 @@
 <?php
 class Response
 {
-   public $class;
-   public $method;
-   public $options;
-   
-   protected $_view;
+   public static $view;
+   public static $method;
+   public static $get = array();
 
-   public function __construct($view, $method, $get)
+   public $options;
+
+   public function __construct()
    {
-      $this->_view = new View($view, $method, $get);
+      new View();
    }
 
-   protected function _routingMode()
+   public static function downStream()
    {
+      $class = self::$view->newInstance();
+      self::$method->invokeArgs($class, self::$get);
+   }
+
+   public static function jump($error)
+   {
+      self::$view = new ReflectionClass('Error');
+      self::$method = new ReflectionMethod('Error', 'http');
+      self::$get[0] = $error;
+      exit;
    }
 }
