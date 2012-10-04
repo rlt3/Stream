@@ -7,9 +7,9 @@ class Response
    
    protected $_view;
 
-   public function __construct($request)
+   public function __construct($view, $method, $get)
    {
-      $this->_view = new View($request->view, $request->method, $request->get);
+      $this->_view = new View($view, $method, $get);
    }
 
    protected function _routingMode()
