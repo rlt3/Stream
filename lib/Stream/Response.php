@@ -1,11 +1,7 @@
 <?php
-class Response
+class Response extends Request
 {
-   public static $view;
-   public static $method;
-   public static $get = array();
-
-   public $options;
+   private $options;
 
    public function __construct()
    {
@@ -14,8 +10,7 @@ class Response
 
    public static function downStream()
    {
-      $class = self::$view->newInstance();
-      self::$method->invokeArgs($class, self::$get);
+      self::$method->invokeArgs(self::$view->newInstance(), self::$get);
    }
 
    public static function jump($error)
