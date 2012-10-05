@@ -7,7 +7,7 @@ class View extends Response
    {
       $this->handleView();
       $this->handleMethod();
-      $this->handleArguments();
+      $this->handleParameters();
    }
 
    protected function handleView()
@@ -26,21 +26,18 @@ class View extends Response
          self::jump(405);
    }
 
-   protected function handleArguments()
+   protected function handleParameters()
    {
-      $this->args = parent::$method->getParameters();
-      if(empty($this->args))
+      if(parent::$method->getNumberOfRequiredParameters() == 0)
          self::jump;
-      elseif($this->missingArgs(Request::$get))
-         self::jump(400);
+      $this->args = parent::$method->getParameters();
+      $this->handleArguments(Request::$get);
    }
 
-   protected function missingArgs($get)
+   protected function handleArguments($get)
    {
-      $i=0;
-      foreach($this->args as $arg)
-         if(!$arg->isOptional() && empty($get[$i++]))
-            return true;
-      return false;
+      for($i=0;$i<=sizeof($this->args);$i++)
+         if(!$arg[$i]->isOptional() && empty($get[$i]))
+            self::jump(400);
    }
 }
