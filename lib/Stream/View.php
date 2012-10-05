@@ -8,6 +8,8 @@ class View extends Response
       $this->handleView();
       $this->handleMethod();
       $this->handleParameters();
+
+      //new Model($this->args);
    }
 
    protected function handleView()
@@ -37,7 +39,8 @@ class View extends Response
    protected function handleArguments($get)
    {
       for($i=0;$i<=sizeof($this->args);$i++)
-         if(!$this->args[$i]->isOptional() && empty($get[$i]))
-            self::jump(400);
+         if($this->args[$i]->getClass()==null)
+            if(!$this->args[$i]->isOptional() && empty($get[$i]))
+               self::jump(400);
    }
 }
