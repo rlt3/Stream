@@ -37,7 +37,7 @@ class View extends Response
    protected function handleArguments($get)
    {
       for($i=0;$i<=sizeof($this->args);$i++)
-         if(!$arg[$i]->isOptional() && empty($get[$i]))
+         if(!$this->args[$i]->isOptional() && empty($get[$i]))
             self::jump(400);
    }
 }
