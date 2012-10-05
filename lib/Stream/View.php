@@ -30,7 +30,7 @@ class View extends Response
    {
       $this->args = parent::$method->getParameters();
       if(empty($this->args))
-         exit;
+         self::jump;
       elseif($this->missingArgs(Request::$get))
          self::jump(400);
    }

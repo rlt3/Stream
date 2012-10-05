@@ -13,11 +13,16 @@ class Response extends Request
       self::$method->invokeArgs(self::$view->newInstance(), self::$get);
    }
 
-   public static function jump($error)
+   protected static function jump($error=null)
+   {
+      if(isset($error)) self::error($error);
+      exit;
+   }
+
+   private static function error($error)
    {
       self::$view = new ReflectionClass('Error');
       self::$method = new ReflectionMethod('Error', 'http');
       self::$get[0] = $error;
-      exit;
-   }
+   } 
 }
