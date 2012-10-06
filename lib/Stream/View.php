@@ -37,8 +37,18 @@ class View extends Response
    protected function handleArguments($get)
    {
       for($i=0;$i<=sizeof(parent::$args);$i++)
-         if(parent::$args[$i]->getClass()==null)
-            if(!parent::$args[$i]->isOptional() && empty($get[$i]))
+      {
+         if(parent::$args[$i]->getClass()!=null)
+         {
+            try {
+               array_unshift(parent::$get, parent::$args[$i]->getClass()->newInstance());
+            }  catch(Exception $e) {
+               self::jump(500);
+            }
+         }
+         else
+            if(!parent::$args[$i]->isOptional() && empty(parent::$get[$i]))
                self::jump(400);
+      }
    }
 }
