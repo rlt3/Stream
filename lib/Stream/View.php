@@ -1,46 +1,44 @@
 <?php
 class View extends Response
 {
-   protected $args;
-   
    public function __construct()
    {
       $this->handleView();
       $this->handleMethod();
       $this->handleParameters();
-
-      //new Model($this->args);
    }
 
    protected function handleView()
    {
-      if(class_exists(Request::$view))
+      try {
          parent::$view = new ReflectionClass(Request::$view);
-      else
+      }  catch(Exception $e) {
          self::jump(404);
+      }
    }
 
    protected function handleMethod()
    {
-      if(parent::$view->hasMethod(Request::$method))
-         parent::$method = new ReflectionMethod(parent::$view->getName(), Request::$method);
-      else
+      try {
+         parent::$method = new ReflectionMethod(parent::$view->name, Request::$method);
+      }  catch(Exception $e) {
          self::jump(405);
+      }
    }
 
    protected function handleParameters()
    {
       if(parent::$method->getNumberOfRequiredParameters() == 0)
          self::jump;
-      $this->args = parent::$method->getParameters();
+      parent::$args = parent::$method->getParameters();
       $this->handleArguments(Request::$get);
    }
 
    protected function handleArguments($get)
    {
-      for($i=0;$i<=sizeof($this->args);$i++)
-         if($this->args[$i]->getClass()==null)
-            if(!$this->args[$i]->isOptional() && empty($get[$i]))
+      for($i=0;$i<=sizeof(parent::$args);$i++)
+         if(parent::$args[$i]->getClass()==null)
+            if(!parent::$args[$i]->isOptional() && empty($get[$i]))
                self::jump(400);
    }
 }
