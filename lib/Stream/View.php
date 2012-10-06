@@ -1,6 +1,8 @@
 <?php
 class View extends Response
 {
+   protected $args;
+
    public function __construct()
    {
       $this->handleView();
@@ -30,24 +32,24 @@ class View extends Response
    {
       if(parent::$method->getNumberOfRequiredParameters() == 0)
          self::jump;
-      parent::$args = parent::$method->getParameters();
+      $this->args = parent::$method->getParameters();
       $this->handleArguments(Request::$get);
    }
 
    protected function handleArguments($get)
    {
-      for($i=0;$i<=sizeof(parent::$args);$i++)
+      for($i=0;$i<=sizeof($this->args);$i++)
       {
-         if(parent::$args[$i]->getClass()!=null)
+         if($this->args[$i]->getClass()!=null)
          {
             try {
-               array_unshift(parent::$get, parent::$args[$i]->getClass()->newInstance());
+               array_unshift(parent::$get, $this->args[$i]->getClass()->newInstance());
             }  catch(Exception $e) {
                self::jump(500);
             }
          }
          else
-            if(!parent::$args[$i]->isOptional() && empty(parent::$get[$i]))
+            if(!$this->args[$i]->isOptional() && empty(parent::$get[$i]))
                self::jump(400);
       }
    }
