@@ -33,8 +33,11 @@ class View extends Response
    {
       $arguments = parent::$method->getParameters();
 
-      if(empty($arguments))
+      if(empty($arguments) || substr(Request::$get[0],0,1)==="?")
+      {
+         Request::$get = array();
          self::jump;
+      }
       
       foreach($arguments as $argument)
          if($argument->getClass()!=null)
