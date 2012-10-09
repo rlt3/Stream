@@ -1,13 +1,14 @@
 <?php
 class View extends Response
 {
-   protected $args;
+   protected $models;
+   protected $parameters;
 
    public function __construct()
    {
       $this->handleView();
       $this->handleMethod();
-      $this->handleParameters();
+      $this->parseArguments();
    }
 
    protected function handleView()
@@ -28,29 +29,34 @@ class View extends Response
       }
    }
 
-   protected function handleParameters()
+   protected function parseArguments()
    {
-      if(parent::$method->getNumberOfRequiredParameters() == 0)
+      $arguments = parent::$method->getParameters();
+
+      if(empty($arguments))
          self::jump;
-      $this->args = parent::$method->getParameters();
-      $this->handleArguments(Request::$get);
+      
+      foreach($arguments as $argument)
+         if($argument->getClass()!=null)
+            $this->models[] = $argument;
+         else
+            $this->parameters[] = $argument;
+
+      $this->handleArguments();
    }
 
-   protected function handleArguments($get)
+   protected function handleArguments()
    {
-      for($i=0;$i<=sizeof($this->args);$i++)
-      {
-         if($this->args[$i]->getClass()!=null)
-         {
-            try {
-               array_unshift(parent::$get, $this->args[$i]->getClass()->newInstance());
-            }  catch(Exception $e) {
-               self::jump(500);
-            }
+      $i=0;
+      foreach($this->parameters as $parameter)
+         if($parameter->isOptional()==false && empty(Request::$get[$i++]))
+            self::jump(400);
+
+      foreach($this->models as $model)
+         try {
+            array_unshift(parent::$get, $model->getClass()->newInstance());
+         }  catch(Exception $e) {
+            self::jump(500);
          }
-         else
-            if(!$this->args[$i]->isOptional() && empty(parent::$get[$i]))
-               self::jump(400);
-      }
    }
 }
