@@ -20,7 +20,7 @@ class Request
 
    private function _getView()
    {
-      return (empty($this->path[1])) ? 'Index' : ucfirst($this->path[1]);
+      return (empty($this->path[1]) || substr($this->path[1],0,1)==="?") ? 'Index' : ucfirst($this->path[1]);
    }
 
    private function _getParameters()
