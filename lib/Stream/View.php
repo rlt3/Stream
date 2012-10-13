@@ -12,7 +12,7 @@ class View extends Response
    }
 
    protected function handleView()
-   {
+   {  // See if the request exists or 404
       try {
          parent::$view = new ReflectionClass(Request::$view);
       }  catch(Exception $e) {
@@ -21,7 +21,7 @@ class View extends Response
    }
 
    protected function handleMethod()
-   {
+   {  // see if Request Method was valid or 405
       try {
          parent::$method = new ReflectionMethod(parent::$view->name, Request::$method);
       }  catch(Exception $e) {
@@ -33,10 +33,11 @@ class View extends Response
    {
       $arguments = parent::$method->getParameters();
 
-      if(empty($arguments) || substr(Request::$get[0],0,1)==="?")
+      // if the class method has no arguments or there's an httpGet, jump
+      if(empty($arguments) || has_http_get(Request::$get[0]))
       {
          Request::$get = array();
-         self::jump;
+         self::jump();
       }
       
       foreach($arguments as $argument)
@@ -49,12 +50,13 @@ class View extends Response
    }
 
    protected function handleArguments()
-   {
+   {  // check if missing required parameters: /delete/ with nothing to delete 
       $i=0;
       foreach($this->parameters as $parameter)
          if($parameter->isOptional()==false && empty(Request::$get[$i++]))
             self::jump(400);
 
+      // for each model, try to load the model or 500
       foreach($this->models as $model)
          try {
             array_unshift(parent::$get, $model->getClass()->newInstance());

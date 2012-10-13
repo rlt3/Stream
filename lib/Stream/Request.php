@@ -10,7 +10,9 @@ class Request
    {
       $this->_redirectSlashes();
 
+      // make an array from stuff between slashes from request path
       $this->path   = explode('/', $_SERVER['REQUEST_URI']);
+
       self::$method = strtolower($_SERVER['REQUEST_METHOD']);
       self::$view   = $this->_getView();
       self::$get    = $this->_getParameters();
@@ -20,7 +22,7 @@ class Request
 
    private function _getView()
    {
-      return (empty($this->path[1]) || substr($this->path[1],0,1)==="?") ? 'Index' : ucfirst($this->path[1]);
+      return (empty($this->path[1]) || has_http_get($this->path[1])) ? 'Index' : ucfirst($this->path[1]);
    }
 
    private function _getParameters()
@@ -29,7 +31,7 @@ class Request
    }
 
    private function _redirectSlashes()
-   {
+   {  // site.com/page/ => site.com/page
       $url = $_SERVER['REQUEST_URI'];
       if(substr_compare($url, '/', strlen($url)-1) == 0 && $url != '/')
          header('Location: '.substr($url,0,-1));
