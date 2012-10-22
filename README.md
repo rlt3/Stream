@@ -19,14 +19,14 @@ To get started, you need to have a single point of entry. For example, have all 
 
 To create actual pages, Views are defined like this:
 
-   class PAGE
-   {
-      public function REQUEST_METHOD(MODEL $model, $variable)
-      {
-         // do some stuff
-         // require a template
-      }
-   }
+    class PAGE
+    {
+       public function REQUEST_METHOD(MODEL $model, $variable)
+       {
+          // do some stuff
+          // require a template
+       }
+    }
 
 Where ``PAGE`` would be the url you would want and REQUEST_METHOD would be the accepted request method for that page, e.g. GET or POST. If you need a model, you need to use object-type hinting in the arguments part of the function, and these models need to come before anything else. Variables that do not have object type hinting will be treated as if you are expecting a GET parameter, e.g. ``example.com/article/1``.
 
@@ -36,21 +36,21 @@ The classes can be named anything except ``Index``, because that is reserved for
 
 An index page might look something like this:
 
-   class Index
-   {
-      public function get()
-      {
-         echo "Hello World!";
-      }
-   }
+    class Index
+    {
+       public function get()
+       {
+          echo "Hello World!";
+       }
+    }
 
 A blog page might look something like this:
 
-   class Blog
-   {
-      public function get(Articles $articles)
-      {
-         $articles->getRecent(3);
-         require("blog.php");
-      }
-   }
+    class Blog
+    {
+       public function get(Articles $articles)
+       {
+          $articles->getRecent(3);
+          require("blog.php");
+       }
+    }
