@@ -34,7 +34,7 @@ If the argument is not optional, and the user does not request a page with a GET
 
 The classes can be named anything except ``Index``, because that is reserved for ``/`` requests. 
 
-An index page might look something like this:
+Some example views using GET methods:
 
     class Index
     {
@@ -44,13 +44,30 @@ An index page might look something like this:
        }
     }
 
-A blog page might look something like this:
-
     class Blog
     {
        public function get(Articles $articles)
        {
-          $articles->getRecent(3);
+          $content = $articles->getRecent(3);
           require("blog.php");
+       }
+    }
+
+A 'complex' example using all of Stream's features:
+
+    class Login
+    {
+       public function get($bad=null)
+       {
+          require("login.php");
+       }
+
+       public function post(Authorize $auth)
+       {
+          $user = $auth->user(); 
+          if($user)
+            header('Location: /);
+          else
+            header('Location: /login/bad);
        }
     }
