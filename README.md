@@ -13,20 +13,44 @@ It's named for what I would like to call the 'Stream Model'. The model is simple
 
 For requests that need to make use of a model and GET parameters, they would go all the way 'up' before coming down the Stream. So, only the things that require to most amount of work use the most amount of resources. This is the theory and this is what I'm working towards.
 
-### URL Mapping
+### How do I use it
 
-Stream also makes pretty urls. For a url like ``/article/1`` all a developer would need to do is make a  ``class Article`` with a ``public function get($id)`` as a method.
+To get started, you need to have a single point of entry. For example, have all traffic go to ``app/Controller.php``. From there, just include ``Stream.php``. I have that file here in ``lib/Stream/Stream.php``.
 
-But I didn't want to break the super globals PHP uses for GET already because of things like APIs. Sometimes you see something like this:
+To create actual pages, Views are defined like this:
 
-``example.com/api?method=getFruit&cost=5.99&store=Aldi``
+   class PAGE
+   {
+      public function REQUEST_METHOD(MODEL $model, $variable)
+      {
+         // do some stuff
+         // require a template
+      }
+   }
 
-Well, I thought that it would be cool to combine the above into a more readable format like:
+Where ``PAGE`` would be the url you would want and REQUEST_METHOD would be the accepted request method for that page, e.g. GET or POST. If you need a model, you need to use object-type hinting in the arguments part of the function, and these models need to come before anything else. Variables that do not have object type hinting will be treated as if you are expecting a GET parameter, e.g. ``example.com/article/1``.
 
-``example.com/api/getfruit/?cost=5.99&store=Aldi``
+If the argument is not optional, and the user does not request a page with a GET parameter  -- ``example.com/article`` -- then the page will throw a 400 error: bad syntax. To make a GET parameter optional, simply do as you would do a normal function: ``public function get($id=1)``.
 
-The difference between the two is not a very big one, but a significant one, I would like to think.
+The classes can be named anything except ``Index``, because that is reserved for ``/`` requests. 
 
-Of course, there is nothing stopping you from doing the following:
+An index page might look something like this:
 
-``example.com/api/categoryTotal/Produce/Aldi``
+   class Index
+   {
+      public function get()
+      {
+         echo "Hello World!";
+      }
+   }
+
+A blog page might look something like this:
+
+   class Blog
+   {
+      public function get(Articles $articles)
+      {
+         $articles->getRecent(3);
+         require("blog.php");
+      }
+   }
