@@ -2,7 +2,6 @@
 require_once('Request.php');
 require_once('Response.php');
 require_once('View.php');
-require_once('Model.php');
 require_once('Template.php');
 require_once('Error.php');
 
