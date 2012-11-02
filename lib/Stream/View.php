@@ -41,10 +41,16 @@ class View extends Response
       }
       
       foreach($arguments as $argument)
-         if($argument->getClass()!=null)
-            $this->models[] = $argument;
-         else
-            $this->parameters[] = $argument;
+      {
+         try {
+            if($argument->getClass()!=null)
+               $this->models[] = $argument;
+            else
+               $this->parameters[] = $argument;
+         }  catch(Exception $e) {
+            self::jump(500);
+         }
+      }
 
       $this->handleArguments();
    }
