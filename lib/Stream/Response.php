@@ -27,11 +27,13 @@ class Response extends Request
    public static function downStream()
    {
       /**
-       * Using the ReflectionMethod::invokeArgs() with an empty array
-       * will still work if the method has no arguments. So the way we
-       * invoke the method doesn't change, even if we don't have arguments.
+       * The invokeArgs methods of the Reflection Class and Reflection Method
+       * actually accept an empty array when no arguments are needed. There is
+       * no need to check if the array is empty and then call ->invoke if true.
        */
-      self::$method->invokeArgs(self::$view->newInstance(), self::$get);
+      $args = array();
+      $class = self::$view->newInstanceArgs($args);
+      self::$method->invokeArgs($class, self::$get);
    }
 
    protected static function jump($error=null)
