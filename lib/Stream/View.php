@@ -1,8 +1,21 @@
 <?php
 class View extends Response
 {
-   protected $models;
-   protected $parameters;
+   /**
+    * The View handles the View class that will eventually return something
+    * to the user. This Class sees if that View exists (if not, 404), if there
+    * are missing arguments (if there are, 400), if the method is ok or not
+    * (405 if it isn't).
+    *
+    * Most functions are wrapped around a try/catch clause because instantiating
+    * a view requires the use of Reflection for what we're doing.
+    *
+    * The View will probably soon instantiate a "Constructor" class that deals
+    * with the Constructor of a View.
+    */
+
+   protected $models = array();
+   protected $parameters = array();
 
    public function __construct()
    {
@@ -34,7 +47,8 @@ class View extends Response
       $arguments = parent::$method->getParameters();
 
       // if the class method has no arguments or there's an httpGet, jump
-      if(empty($arguments) || has_http_get(Request::$get[0]))
+      //if(empty($arguments) || has_http_get(Request::$get[0]))
+      if(empty($arguments))
       {
          Request::$get = array();
          self::jump();
@@ -58,9 +72,12 @@ class View extends Response
    protected function handleArguments()
    {  // check if missing required parameters: /delete/ with nothing to delete 
       $i=0;
+
       foreach($this->parameters as $parameter)
+      {
          if($parameter->isOptional()==false && empty(Request::$get[$i++]))
             self::jump(400);
+      }
 
       // for each model, try to load the model or 500
       foreach($this->models as $model)

@@ -1,6 +1,17 @@
 <?php
 class Request
 {
+   /**
+    * This is the first class that gets instantiated. It is called
+    * from the Stream.php file.
+    *
+    * This class gets the request path (/article/what-is-a-request-path), 
+    * the request method (GET, POST, DELETE) and determines what view
+    * is being requested (article -- the first part of the request path).
+    *
+    * With this information, the Request created a Response.
+    */
+
    public static $view;
    public static $method;
    public static $get;
