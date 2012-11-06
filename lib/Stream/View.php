@@ -76,15 +76,20 @@ class View extends Response
       foreach($this->parameters as $parameter)
       {
          if($parameter->isOptional()==false && empty(Request::$get[$i++]))
-            self::jump(400);
+            self::jump(400)
       }
 
       // for each model, try to load the model or 500
       foreach($this->models as $model)
-         try {
-            array_unshift(parent::$get, $model->getClass()->newInstance());
-         }  catch(Exception $e) {
-            self::jump(500);
-         }
+         array_unshift(parent::$get, $this->checkModel($model));
+   }
+
+   protected function checkModel(ReflectionParameter $model)
+   {
+      try {
+         return $model->getClass()->newInstance();
+      }  catch(Exception $e) {
+         self::jump(500);
+      }
    }
 }
