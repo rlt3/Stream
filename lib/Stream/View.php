@@ -14,13 +14,16 @@ class View extends Response
     * with the Constructor of a View.
     */
 
-   protected $models = array();
+   private $arguments    = array();
+   protected $models     = array();
    protected $parameters = array();
 
    public function __construct()
    {
       $this->handleView();
+      $this->handleConstructor();
       $this->handleMethod();
+      $this->checkMethodArguments();
       $this->parseArguments();
    }
 
@@ -33,6 +36,16 @@ class View extends Response
       }
    }
 
+   protected function handleConstructor()
+   {
+      $constructor = parent::$view->getConstructor();
+      if($constructor==NULL) return;
+
+      $params = $constructor->getParameters();
+      foreach($params as $param)
+         parent::$constructModels[] = $this->checkModel($param);
+   }
+
    protected function handleMethod()
    {  // see if Request Method was valid or 405
       try {
@@ -42,46 +55,43 @@ class View extends Response
       }
    }
 
-   protected function parseArguments()
+   protected function checkMethodArguments()
    {
-      $arguments = parent::$method->getParameters();
+      $this->arguments = parent::$method->getParameters();
 
-      // if the class method has no arguments or there's an httpGet, jump
-      //if(empty($arguments) || has_http_get(Request::$get[0]))
-      if(empty($arguments))
+      if(empty($this->arguments))
       {
          Request::$get = array();
          self::jump();
       }
-      
-      foreach($arguments as $argument)
-      {
-         try {
-            if($argument->getClass()!=null)
-               $this->models[] = $argument;
-            else
-               $this->parameters[] = $argument;
-         }  catch(Exception $e) {
-            self::jump(500);
-         }
-      }
-
-      $this->handleArguments();
    }
 
-   protected function handleArguments()
-   {  // check if missing required parameters: /delete/ with nothing to delete 
+   protected function parseArguments()
+   {
       $i=0;
-
-      foreach($this->parameters as $parameter)
+      foreach($this->arguments as $argument)
       {
-         if($parameter->isOptional()==false && empty(Request::$get[$i++]))
-            self::jump(400)
+         if($this->getClassName($argument)==null)
+            $this->parameters[] = $this->checkArgument($argument, Request::$get[$i++]);
+         else
+            $this->models[] = $this->checkModel($argument);
       }
 
-      // for each model, try to load the model or 500
       foreach($this->models as $model)
-         array_unshift(parent::$get, $this->checkModel($model));
+         array_unshift(parent::$get, $model);
+   }
+
+   protected function getClassName(ReflectionParameter $param)
+   {
+      preg_match('/\[\s\<\w+?>\s([\w]+)/s', $param->__toString(), $matches);
+      return isset($matches[1]) ? $matches[1] : null;
+   }
+
+   protected function checkArgument(ReflectionParameter $argument, $get)
+   {
+      if($argument->isOptional()==false && empty($get))
+         self::jump(400);
+      return $argument;
    }
 
    protected function checkModel(ReflectionParameter $model)
