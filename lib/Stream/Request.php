@@ -28,6 +28,10 @@ class Request
       self::$view   = $this->_getView();
       self::$get    = $this->_getParameters();
 
+      if(self::$method==="post")
+         foreach($_POST as $post => $value)
+            self::$get[] = $value;
+
       new Response();
    }
 
