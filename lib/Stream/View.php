@@ -7,11 +7,7 @@ class View extends Response
     * are missing arguments (if there are, 400), if the method is ok or not
     * (405 if it isn't).
     *
-    * Most functions are wrapped around a try/catch clause because instantiating
-    * a view requires the use of Reflection for what we're doing.
-    *
-    * The View will probably soon instantiate a "Constructor" class that deals
-    * with the Constructor of a View.
+    * This also passes models to a constructor if need be as well.
     */
 
    private $arguments    = array();
@@ -100,6 +96,7 @@ class View extends Response
          return $model->getClass()->newInstance();
       }  catch(Exception $e) {
          self::jump(500);
+         parent::$exceptions[] = "Requested model does not exist!";
       }
    }
 }
