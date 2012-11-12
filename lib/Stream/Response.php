@@ -18,6 +18,8 @@ class Response extends Request
     */
 
    private $options;
+   protected static $exceptions = array();
+   protected static $constructModels = array();
 
    public function __construct()
    {
@@ -31,9 +33,9 @@ class Response extends Request
        * actually accept an empty array when no arguments are needed. There is
        * no need to check if the array is empty and then call ->invoke if true.
        */
-      $args = array();
-      $class = self::$view->newInstanceArgs($args);
+      $class = self::$view->newInstanceArgs(self::$constructModels);
       self::$method->invokeArgs($class, self::$get);
+      self::debug();
    }
 
    protected static function jump($error=null)
@@ -48,4 +50,16 @@ class Response extends Request
       self::$method = new ReflectionMethod('Error', 'http');
       self::$get[0] = $error;
    } 
+
+   private static function debug()
+   {
+      echo '<br /><br /><pre>';
+      echo $_SERVER['REQUEST_URI'], "\n";
+      echo 'Request View: ', parent::$view->name, "\n";
+      echo 'Method:       ', parent::$method->name, "\n";
+      echo "Request Vars:\n";
+      foreach(parent::$get as $param)
+         echo "            -{$param}\n";
+      echo '</pre>';
+   }
 }
