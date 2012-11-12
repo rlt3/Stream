@@ -72,7 +72,7 @@ class View extends Response
       foreach($this->arguments as $argument)
       {
          if($this->getClassName($argument)==null)
-            $this->parameters[] = $this->checkArgument($argument, Request::$get[$i++]);
+            $this->parameters[] = $this->checkArgument($argument, $i);
          else
             $this->models[] = $this->checkModel($argument);
       }
@@ -87,9 +87,9 @@ class View extends Response
       return isset($matches[1]) ? $matches[1] : null;
    }
 
-   protected function checkArgument(ReflectionParameter $argument, $get)
+   protected function checkArgument(ReflectionParameter $argument, $i)
    {
-      if($argument->isOptional()==false && empty($get))
+      if($argument->isOptional()==false && !isset(Request::$get[$i]))
          self::jump(400);
       return $argument;
    }
